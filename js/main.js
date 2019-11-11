@@ -1,69 +1,102 @@
-//var test;
-// 全てのもぐらに、クリックイベントを登録する
-const moguras = document.querySelectorAll(".mogura");
-const itaiMogura = "images/モグ1.png";
-const normalMogura = "images/モグ2.png";
-setInterval(deruMogura, 1000);
+"use strict";
 
-// 0:hide, 1:show, 2:press
 let gameController = new GameController();
+gameController.start();
 
-function GameController(){
-  this.allMogura = []
-  this.stage = [0, 0 ,0, 0 ,0 ,0, 0, 0, 0]
-  for (let index = 0; index < moguras.length; index++) {
-    this.allMogura.push(new moguraObj(moguras[index]));
+function GameController() {
+  this.MOGURAS = document.querySelectorAll(".mogura");
+  for (let i = 0; i < this.MOGURAS.length; i++) {
+    // オブジェクトの参照を渡している
+    new MoguraObj(this.MOGURAS[i], this);
   }
 
-  this.gameStart = function(){
-     // ステージを生成する
+  // ゲーム開始
+  this.start = function () {
+    // モグラを一定間隔で生成する
+    this.moguraGenerate = setInterval(() => {
+      let rand = Math.floor(Math.random() * this.MOGURAS.length);
+      this.MOGURAS[rand].deru();
+    }, 500);
   }
 
-  this.searchActiveMogura = function(){
-    // for でループして、statusが1のもぐらのリストを返す
+  // ゲーム終了
+  this.finish = function () {
+    clearInterval(this.moguraGenerate);
+
+    for (let i = 0; i < this.MOGURAS.length; i++) {
+      // オブジェクトの参照を渡している
+      this.MOGURAS[i].src = "";
+    }
   }
+
+  this.countMogura = function () {
+    let cnt = 0;
+    for (let i = 0; i < this.MOGURAS.length; i++) {
+      if (this.MOGURAS[i].status == 1) {
+        cnt++;
+      }
+    }
+    return cnt;
+  }
+
+  setInterval((gameController) => {
+    gameController.finish();
+  }, 60000, this);
 }
 
-function moguraObj(image){
-
-  const itaiMogura = "images/モグ1.png";
-  const normalMogura = "images/モグ2.png";
-
-  this.moguraType = 2 // 0:もぐら 1:グラサン 2:ゴブリン
-
-  this.status = 0; // 0:hide, 1:show, 2:press
-  this.autoHide = "";
+function MoguraObj(image, gameController) {
+  this.image = image;
+  image.status = 0; // 0:hide, 1:show, 2:press
+  image.autoHide = "";
+  image.MOGURA_TYPES = ["mogura", "gurasan", "gobu"];
+  image.MOGURA_IMAGES = {
+    mogura: ["", "./images/モグ2.png", "./images/モグ1.png"],
+    gurasan: ["", "./images/モグ3.png", "./images/モグ4.png"],
+    gobu: ["", "./images/ゴブ1.png", "./images/ゴブ2.png"]
+  }
 
   image.onclick = function () {
-    if(this.moguraType == 1){
-      image.src = itaiMogura;
+    if (image.status == 1) {
+      image.status = 2;
+      image.update();
+
+      clearTimeout(image.autoHide);
+      setTimeout(image.kakureru, 400, image);
     }
-    thos.status = 2;
-    setTimeout(kakureruMogura, 700, image);
   }
 
-  image.deru = function(){
-    image.src = normalMogura;
-    // しばらくしたら隠れる
-    setTimeout((mogura) => {
-      if (this.status != 2) {
-        // statusが2の時の処理
-      }
-    }, 600, mogura);
+  // モグラが出現する
+  image.deru = function () {
+    if (image.status != 0) return false;
+    if (Math.random() < 0.7) return false;
+    if (gameController.countMogura() >= 2) return false;
+
+    image.moguraType = image.setImageType();
+
+    image.status = 1;
+    image.update();
+    image.autoHide = setTimeout(image.kakureru, (3000 * Math.random()) + 2000);
   }
 
-  image.kakureru = function(){
-
+  // モグラが隠れる
+  image.kakureru = function () {
+    image.status = 0;
+    image.update();
   }
-  iamge.setImage = function(imageUrl){
-    iamge.src = imageUrl;
+
+  image.update = function () {
+    image.src = image.MOGURA_IMAGES[image.moguraType][image.status];
   }
 
-  // もぐらが叩かれる
-  function hitMogura() {
-    var mogura = event.target;
-    mogura.src = itaiMogura;
-    mogura.moguraStatus = 2;
-    setTimeout(kakureruMogura, 700, mogura);
+  // モグラの種類を決定する
+  image.setImageType = function () {
+    let rand = Math.random();
+    if (rand > 0.95) {
+      return image.MOGURA_TYPES[2]; // 0:もぐら 1:グラサン 2:ゴブリン
+    } else if (rand > 0.8) {
+      return image.MOGURA_TYPES[1]; // 0:もぐら 1:グラサン 2:ゴブリン
+    } else {
+      return image.MOGURA_TYPES[0]; // 0:もぐら 1:グラサン 2:ゴブリン
+    }
   }
 }
