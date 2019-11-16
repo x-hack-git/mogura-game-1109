@@ -8,7 +8,7 @@ class GameController {
     let moguras = document.querySelectorAll(".mogura");
     for (let i = 0; i < moguras.length; i++) {
       // オブジェクトの参照を渡している
-      this.moguraObjects.push(new MoguraObject(moguras[i], this))
+      this.moguraObjects.push(new MoguraObject(moguras[i]))
     }
   }
 
@@ -49,15 +49,30 @@ class GameController {
   }
 }
 
+// スコア表示用のクラス
+class ScoreDisplay {
+
+  constructor(){
+    this.score = 0;
+    this.scoreElelent = document.querySelector("#score");
+    this.scoreElelent.innerText = this.score;
+  }
+
+  scoreUp(num){
+    this.score += num;
+    this.scoreElelent.innerText = this.score;
+  }
+}
+
 // モグラ１匹を制御するクラス
 class MoguraObject {
 
   // 初期化処理
   constructor(image, gameController) {
     this.image = image;
-    this.image.data = this; // ポイント1
+    this.image.data = this; // ※ポイント1
     this.image.onclick = this.onclick;
-    this.gameController = gameController;
+    // this.gameController = gameController;
     this.status = 0; // 0:hide, 1:show, 2:press
     this.autoHide = "";
     this.MOGURA_TYPES = ["mogura", "gurasan", "gobu"];
@@ -74,23 +89,23 @@ class MoguraObject {
   }
 
   onclick(){
-    this.data.press(); // ポイント2
+    this.data.press(); // ※ポイント2
   }
 
+  // モグラが叩かれた時の処理
   press() {
     if (this.status != 1) return;
     
-    this.gameController.score += this.MOGURA_SCORES[this.moguraType];
+    scoreDisplay.scoreUp(this.MOGURA_SCORES[this.moguraType])
     this.setStatus(2);
 
     clearTimeout(this.autoHide);
     setTimeout(() => { this.setStatus(0) }, 400);
   }
 
-  // モグラが出現する
+  // モグラが出現する処理
   deru() {
-    if (this.status != 0) return false;
-    if (Math.random() < 0.7) return false;
+    if (this.status != 0) return false; // すでに出現しているエリアでは何もしない
     if (this.overMoguraDisplayLimit()) return false; // 同時に２匹までしか出ないようにする
 
     // どの種類のモグラかを決定する
@@ -104,7 +119,7 @@ class MoguraObject {
 
   // モグラの同時出現が上限に達していないかをチェックする
   overMoguraDisplayLimit() {
-    return (this.gameController.countMogura() >= 2);
+    return (gameController.countMogura() >= 2);
   }
 
   // ステータスを更新する
@@ -131,5 +146,7 @@ class MoguraObject {
   }
 }
 
+let scoreDisplay = new ScoreDisplay();
 let gameController = new GameController();
+
 gameController.start();
