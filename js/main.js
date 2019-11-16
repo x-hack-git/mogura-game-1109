@@ -3,6 +3,7 @@
 // ゲーム全体を制御するクラス
 class GameController {
   constructor() {
+    this.score = 0;
     this.moguraObjects = [];
     let moguras = document.querySelectorAll(".mogura");
     for (let i = 0; i < moguras.length; i++) {
@@ -65,6 +66,11 @@ class MoguraObject {
       gurasan: ["", "./images/モグ3.png", "./images/モグ4.png"],
       gobu: ["", "./images/ゴブ1.png", "./images/ゴブ2.png"]
     }
+    this.MOGURA_SCORES = {
+      mogura: 1,
+      gurasan: 2,
+      gobu: 5
+    }
   }
 
   onclick(){
@@ -74,6 +80,7 @@ class MoguraObject {
   press() {
     if (this.status != 1) return;
     
+    this.gameController.score += this.MOGURA_SCORES[this.moguraType];
     this.setStatus(2);
 
     clearTimeout(this.autoHide);
