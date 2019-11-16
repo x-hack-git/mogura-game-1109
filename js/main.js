@@ -68,11 +68,10 @@ class ScoreDisplay {
 class MoguraObject {
 
   // 初期化処理
-  constructor(image, gameController) {
+  constructor(image) {
     this.image = image;
     this.image.data = this; // ※ポイント1
     this.image.onclick = this.onclick;
-    // this.gameController = gameController;
     this.status = 0; // 0:hide, 1:show, 2:press
     this.autoHide = "";
     this.MOGURA_TYPES = ["mogura", "gurasan", "gobu"];
