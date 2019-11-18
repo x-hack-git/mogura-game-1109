@@ -70,8 +70,8 @@ class MoguraObject {
   // 初期化処理
   constructor(image) {
     this.image = image;
-    this.image.data = this; // ※ポイント1
-    this.image.onclick = this.onclick;
+    // this.image.data = this; // ※ポイント1
+    this.image.onclick = () => { this.press() };
     this.status = 0; // 0:hide, 1:show, 2:press
     this.autoHide = "";
     this.MOGURA_TYPES = ["mogura", "gurasan", "gobu"];
@@ -87,9 +87,9 @@ class MoguraObject {
     }
   }
 
-  onclick(){
-    this.data.press(); // ※ポイント2
-  }
+  // onclick(){
+  //   this.data.press(); // ※ポイント2
+  // }
 
   // モグラが叩かれた時の処理
   press() {
